@@ -1,69 +1,82 @@
-const { addUser, getUserById, getUsers } = require("../helpers/authModel");
+const {
+  addUser,
+  getUserById,
+  getUsers,
+  findUser
+} = require("../helpers/authModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const express = require("express");
 
-const router = express.router();
+const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.status(200).send("<h1>Hello world</h1>");
-});
-
-router.post("/register", validateUserBody, (req, res, next) => {
+router.post("/register", (req, res) => {
   const { username, password, account_type } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 11);
   addUser({ username, password: hashedPassword, account_type })
     .then(user => {
       res.status(201).json({ id: user.id, username: user.username });
     })
-    .catch(next);
+    .catch(error => {
+      res.status(400).json({
+        errorMessage: `Unable to register new user at this time. ${error.message}`
+      });
+    });
 });
 
-router.post("/login", validateUserBody, (req, res, next) => {
+router.post("/login", (req, res) => {
   const { username, password } = req.body;
-  getUser({ username })
+  findUser({ username })
     .then(user => {
       if (!user) {
-        next({ message: "Invalid credentials", status: 401 });
+        res
+          .status(400)
+          .json({ message: `Username not found. Please check your username` });
       } else {
         const isValidPassword = bcrypt.compareSync(password, user.password);
         if (!isValidPassword) {
-          next({ message: "Invalid credentials", status: 401 });
+          res.status(400).json({
+            message: `Password is incorrect. Please check your password`
+          });
         } else {
           const token = generateToken(user);
           res.status(200).json({ token });
         }
       }
     })
-    .catch(next);
+    .catch(error => {
+      res.status(500).json({
+        errorMessage: `Cannot login at this time. Please try again. ${error.message}`
+      });
+    });
 });
 
-router.get("/users", restricted, (req, res, next) => {
-  Users.getUsers()
-    .then(users => {
-      if (users) {
-        res
-          .status(200)
-          .json(users.map(user => ({ id: user.id, username: user.username })));
-      } else {
-        next({ message: "No users were found", status: 404 });
-      }
-    })
-    .catch(next);
-});
+// router.get("/users", restricted, (req, res, next) => {
+//   Users.getUsers()
+//     .then(users => {
+//       if (users) {
+//         res
+//           .status(200)
+//           .json(users.map(user => ({ id: user.id, username: user.username })));
+//       } else {
+//         next({ message: "No users were found", status: 404 });
+//       }
+//     })
+//     .catch(next);
+// });
 
-router.get("/users/:id", restricted, validateUserId, (req, res) => {
-  res.status(200).json(req.user);
-});
+// router.get("/users/:id", restricted, validateUserId, (req, res) => {
+//   res.status(200).json(req.user);
+// });
 
-router.put("/users/:id", validateUserId, validateUserBody, (req, res, next) => {
-  Users.update(req.body, req.user.id)
-    .then(updatedScheme => {
-      res.status(200).json(updatedScheme);
-    })
-    .catch(next);
-});
-
+// router.put("/users/:id", validateUserId, validateUserBody, (req, res, next) => {
+//   Users.update(req.body, req.user.id)
+//     .then(updatedScheme => {
+//       res.status(200).json(updatedScheme);
+//     })
+//     .catch(next);
+// });
+//
 // router.delete("/users/:id", validateUserId, (req, res, next) => {
 //   Users.remove(req.user.id)
 //     .then(() => {
@@ -72,67 +85,20 @@ router.put("/users/:id", validateUserId, validateUserBody, (req, res, next) => {
 //     .catch(next);
 // });
 
-function validateUserId(req, res, next) {
-  const { id } = req.params;
-  let validId = Number(id);
-  if (!Number.isInteger(validId) && validId > 0) {
-    next({ message: "Invalid user id" });
-  }
-  Users.getUser({ id: validId })
-    .then(user => {
-      if (user) {
-        req.user = user;
-        next();
-      } else {
-        next({ message: "Could not find user with given id", status: 404 });
-      }
-    })
-    .catch(next);
-}
-
-function validateUserBody(req, res, next) {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    next({
-      message: "Missing required `username` and `password` fields",
-      status: 401
-    });
-  } else {
-    req.body = { username, password };
-    next();
-  }
-}
-
-function restricted(req, res, next) {
-  const token = req.headers.authorization;
-  if (token) {
-    jwt.verify(token, "secret", (err, decodedUser) => {
-      if (err) {
-        next({ message: err, status: 400 });
-      } else {
-        req.loggedInUser = decodedUser;
-        next();
-      }
-    });
-  } else {
-    next({ message: "YOU SHALL NOT PASS!", status: 401 });
-  }
-}
-
-router.use((error, req, res, next) => {
-  res
-    .status(error.status || 500)
-    .json({
-      file: "user-router",
-      //headers: req.headers,
-      //protocol: req.protocol,
-      method: req.method,
-      url: req.url,
-      status: error.status || 500,
-      message: error.message
-    })
-    .end();
-});
+// router.use((error, req, res, next) => {
+//   res
+//     .status(error.status || 500)
+//     .json({
+//       file: "user-router",
+//       //headers: req.headers,
+//       //protocol: req.protocol,
+//       method: req.method,
+//       url: req.url,
+//       status: error.status || 500,
+//       message: error.message
+//     })
+//     .end();
+// });
 
 function generateToken(user) {
   return jwt.sign(
@@ -140,10 +106,11 @@ function generateToken(user) {
       subject: user.id,
       username: user.username
     },
-    "secret",
+    process.env.JWT_SECRET || "as$q87sRwqQ!wPbc76@=C5%TX+dwR5&$",
     {
-      expiresIn: "1d"
+      expiresIn: "30d"
     }
   );
 }
+
 module.exports = router;

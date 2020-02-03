@@ -16,7 +16,6 @@ exports.up = function(knex) {
         .integer("equipment_id", 128)
         .unsigned()
         .notNullable()
-        .unique()
         .references("id")
         .inTable("equipments")
         .onUpdate("CASCADE")
@@ -33,7 +32,6 @@ exports.up = function(knex) {
         .integer("user_id", 128)
         .unsigned()
         .notNullable()
-        .unique()
         .references("id")
         .inTable("users")
         .onUpdate("CASCADE")
@@ -46,20 +44,15 @@ exports.up = function(knex) {
         .string("name", 255)
         .unique()
         .notNullable();
-      tbl
-        .string("category", 255)
-        .unique()
-        .notNullable();
+      tbl.string("category", 255).notNullable();
       tbl
         .decimal("cost")
         .unsigned()
-        .unique()
         .notNullable();
       tbl
         .integer("user_id", 128)
         .unsigned()
         .notNullable()
-        .unique()
         .references("id")
         .inTable("users")
         .onUpdate("CASCADE")
