@@ -3,20 +3,14 @@ const db = require("../data/dbconfig");
 const addUser = user => {
   return db("users")
     .insert(user)
-    .then(ids => getUser({ id: ids[0] }));
+    .then(([id]) => getUserById(id));
 };
 
-const getUserById = () => {
+const getUserById = id => {
   return db("users")
-    .where(dataObj)
+    .where({ id })
     .first();
 };
-
-// const getUser = id => {
-//   return db("users")
-//     .where({ id })
-//     .first();
-// };
 
 const getUsers = () => {
   return db("users");
