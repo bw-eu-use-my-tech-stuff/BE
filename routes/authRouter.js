@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const express = require("express");
 
-const router = express.router();
+const router = express.Router();
 
 router.post("/register", (req, res) => {
   const { username, password, account_type } = req.body;
