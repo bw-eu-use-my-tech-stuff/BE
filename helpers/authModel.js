@@ -22,11 +22,11 @@ const getUsers = () => {
   return db("users");
 };
 
-function findUser(filter) {
+const findUser = filter => {
   return db("users")
     .where(filter)
     .first();
-}
+};
 
 module.exports = {
   addUser,
