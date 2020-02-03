@@ -1,33 +1,22 @@
 const db = require("../data/dbconfig");
-
 const addUser = user => {
   return db("users")
     .insert(user)
-    .then(ids => getUser({ id: ids[0] }));
+    .then(([id]) => getUserById(id));
 };
-
-// const getUserById = () => {
-//   return db("users")
-//     .where(dataObj)
-//     .first();
-// };
-
-const getUser = id => {
+const getUserById = id => {
   return db("users")
     .where({ id })
     .first();
 };
-
 const getUsers = () => {
   return db("users");
 };
-
-function findUser(filter) {
+const findUser = filter => {
   return db("users")
     .where(filter)
     .first();
-}
-
+};
 module.exports = {
   addUser,
   getUserById,
