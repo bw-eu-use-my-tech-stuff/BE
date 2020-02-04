@@ -27,7 +27,7 @@ const getEquipmentById = id => {
 };
 
 const updateEquipment = (changes, id) => {
-  db("equipments")
+  return db("equipments")
     .where({ id })
     .update(changes)
     .then(count => {

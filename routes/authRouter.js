@@ -4,6 +4,11 @@ const {
   getUsers,
   findUser
 } = require("../helpers/authModel");
+const {
+  restrictToPoster,
+  restrictToOwners,
+  restrictToRenters
+} = require("../middleware/restricted");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const express = require("express");
@@ -51,7 +56,7 @@ router.post("/login", (req, res) => {
     });
 });
 
-// router.get("/users", restricted, (req, res, next) => {
+// router.get("/users", restrictToOwners, (req, res, next) => {
 //   Users.getUsers()
 //     .then(users => {
 //       if (users) {
@@ -65,19 +70,19 @@ router.post("/login", (req, res) => {
 //     .catch(next);
 // });
 
-// router.get("/users/:id", restricted, validateUserId, (req, res) => {
+// router.get("/users/:id", restrictToPoster, validateUserId, (req, res) => {
 //   res.status(200).json(req.user);
 // });
 
-// router.put("/users/:id", validateUserId, validateUserBody, (req, res, next) => {
+// router.put("/users/:id", restrictToOwners, validateUserId, validateUserBody, (req, res, next) => {
 //   Users.update(req.body, req.user.id)
 //     .then(updatedScheme => {
 //       res.status(200).json(updatedScheme);
 //     })
 //     .catch(next);
 // });
-//
-// router.delete("/users/:id", validateUserId, (req, res, next) => {
+
+// router.delete("/users/:id", restrictToOwners, validateUserId, (req, res, next) => {
 //   Users.remove(req.user.id)
 //     .then(() => {
 //       res.status(204).json(req.user);
