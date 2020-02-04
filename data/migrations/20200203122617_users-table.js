@@ -58,6 +58,10 @@ exports.up = function(knex) {
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
       tbl.boolean("available").defaultTo(true);
+      tbl
+        .text("description")
+        .unique()
+        .notNullable();
     });
 };
 
