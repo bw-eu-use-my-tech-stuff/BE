@@ -13,6 +13,7 @@ function restrictToOwners(req, res, next) {
             message: `Your token is unauthorized. Please check and try again`
           });
         } else {
+          req.decoded = decoded;
           const { account_type } = await getAccountTypeWithId(decoded.subject);
           if (account_type === "owner") {
             next();
@@ -41,6 +42,7 @@ function restrictToRenters(req, res, next) {
             message: `Your token is unauthorized. Please check and try again`
           });
         } else {
+          req.decoded = decoded;
           const { account_type } = await getAccountTypeWithId(decoded.subject);
           if (account_type === "renter") {
             next();
