@@ -10,6 +10,32 @@ exports.up = function(knex) {
       tbl.text("account_type", 156).notNullable();
     })
 
+    .createTable("equipments", tbl => {
+      tbl.increments();
+      tbl
+        .string("name", 255)
+        .unique()
+        .notNullable();
+      tbl.string("category", 255).notNullable();
+      tbl
+        .decimal("cost")
+        .unsigned()
+        .notNullable();
+      tbl
+        .integer("user_id", 128)
+        .unsigned()
+        .notNullable()
+        .references("id")
+        .inTable("users")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
+      tbl.boolean("available").defaultTo(true);
+      tbl
+        .text("description")
+        .unique()
+        .notNullable();
+    })
+
     .createTable("rent_details", tbl => {
       tbl.increments();
       tbl
@@ -36,32 +62,6 @@ exports.up = function(knex) {
         .inTable("users")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
-    })
-
-    .createTable("equipments", tbl => {
-      tbl.increments();
-      tbl
-        .string("name", 255)
-        .unique()
-        .notNullable();
-      tbl.string("category", 255).notNullable();
-      tbl
-        .decimal("cost")
-        .unsigned()
-        .notNullable();
-      tbl
-        .integer("user_id", 128)
-        .unsigned()
-        .notNullable()
-        .references("id")
-        .inTable("users")
-        .onUpdate("CASCADE")
-        .onDelete("CASCADE");
-      tbl.boolean("available").defaultTo(true);
-      tbl
-        .text("description")
-        .unique()
-        .notNullable();
     });
 };
 
