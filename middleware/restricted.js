@@ -1,4 +1,5 @@
 const { getAccountTypeWithId } = require("../helpers/authModel");
+const { getOwnerIdByEquipmentId } = require("../helpers/equipmentModel");
 const jwt = require("jsonwebtoken");
 
 function restrictToOwners(req, res, next) {
@@ -59,7 +60,20 @@ function restrictToRenters(req, res, next) {
   }
 }
 
+async function restrictToPoster(req, res, next) {
+  const { id } = req.params;
+  const { user_id } = getOwnerIdByEquipmentId(id);
+  if (req.decoded.subject === user_id) {
+    next();
+  } else {
+    res
+      .status(400)
+      .json({ message: `You cannot make changes to this equipment` });
+  }
+}
+
 module.exports = {
   restrictToOwners,
-  restrictToRenters
+  restrictToRenters,
+  restrictToPoster
 };
