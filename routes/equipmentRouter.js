@@ -4,8 +4,9 @@ const {
   getEquipments,
   getEquipmentById
 } = require("../helpers/equipmentModel");
+const { restrictToRenters } = require("../middleware/restricted");
 
-router.get("/", (req, res) => {
+router.get("/", restrictToRenters, (req, res) => {
   getEquipments()
     .then(equipments => {
       res.status(200).json(equipments);

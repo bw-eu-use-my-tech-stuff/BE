@@ -22,9 +22,17 @@ const findUser = filter => {
     .first();
 };
 
+const getAccountTypeWithId = id => {
+  return db("users")
+    .select("account_type")
+    .where({ id })
+    .first();
+};
+
 module.exports = {
   addUser,
   getUserById,
   getUsers,
-  findUser
+  findUser,
+  getAccountTypeWithId
 };
