@@ -6,7 +6,7 @@ const {
 } = require("../helpers/equipmentModel");
 const { restrictToRenters } = require("../middleware/restricted");
 
-router.get("/", restrictToRenters, (req, res) => {
+router.get("/", (req, res) => {
   getEquipments()
     .then(equipments => {
       res.status(200).json(equipments);
