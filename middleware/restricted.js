@@ -61,8 +61,8 @@ function restrictToRenters(req, res, next) {
 }
 
 async function restrictToPoster(req, res, next) {
-  const { id } = req.params;
-  const { user_id } = getOwnerIdByEquipmentId(id);
+  const id = req.params.id;
+  const { user_id } = await getOwnerIdByEquipmentId(id);
   if (req.decoded.subject === user_id) {
     next();
   } else {

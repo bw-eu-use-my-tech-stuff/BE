@@ -44,7 +44,7 @@ router.post("/", restrictToOwners, (req, res) => {
     });
 });
 
-router.put("/:id", (req, res, next) => {
+router.put("/:id", restrictToOwners, restrictToPoster, (req, res, next) => {
   updateEquipment(req.body, req.params.id)
     .then(updatedEquipment => {
       res.status(200).json(updatedEquipment);
@@ -56,10 +56,12 @@ router.put("/:id", (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", restrictToOwners, restrictToPoster, (req, res, next) => {
   deleteEquipment(req.body, req.params.id)
-    .then(deletedEquipment => {
-      res.status(204).json(deletedEquipment);
+    .then(data => {
+      res
+        .status(204)
+        .json({ message: `Equipment has been deleted from the database` });
     })
     .catch(error => {
       res
