@@ -27,12 +27,12 @@ const getEquipmentById = id => {
 };
 
 const updateEquipment = (changes, id) => {
-  db("equipments")
+  return db("equipments")
     .where({ id })
-    .update(changes);
-  // .then(count => {
-  //   return count > 0 ? getEquipmentById(id) : null;
-  // });
+    .update(changes)
+    .then(count => {
+      return count > 0 ? getEquipmentById(id) : null;
+    });
 };
 
 const deleteEquipment = id => {
