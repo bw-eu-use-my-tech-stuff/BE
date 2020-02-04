@@ -24,6 +24,18 @@ router.get("/", (req, res) => {
     });
 });
 
+router.get("/:id", (req, res) => {
+  getEquipmentById(req.params.id)
+    .then(equipment => {
+      res.status(200).json(equipment);
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json({ errorMessage: `Unable to retrieve equipments at this time` });
+    });
+});
+
 router.post("/", restrictToOwners, (req, res) => {
   const { name, category, cost, description } = req.body;
   const newEquipment = {
@@ -44,7 +56,7 @@ router.post("/", restrictToOwners, (req, res) => {
     });
 });
 
-router.put("/:id", (req, res, next) => {
+router.put("/:id", restrictToOwners, restrictToPoster, (req, res, next) => {
   updateEquipment(req.body, req.params.id)
     .then(updatedEquipment => {
       res.status(200).json(updatedEquipment);
@@ -56,10 +68,12 @@ router.put("/:id", (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", restrictToOwners, restrictToPoster, (req, res, next) => {
   deleteEquipment(req.body, req.params.id)
-    .then(deletedEquipment => {
-      res.status(204).json(deletedEquipment);
+    .then(data => {
+      res
+        .status(204)
+        .json({ message: `Equipment has been deleted from the database` });
     })
     .catch(error => {
       res
