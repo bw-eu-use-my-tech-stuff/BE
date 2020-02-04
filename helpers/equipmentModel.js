@@ -1,10 +1,10 @@
 const db = require("../data/dbconfig");
 
-const getEquipment = () => {
+const getEquipments = () => {
   return db("equipments");
 };
 
-const postEquipment = () => {
+const addEquipment = () => {
   return db("equipments")
     .insert(equipment)
     .then(([id]) => getEquipmentById(id));
@@ -17,7 +17,7 @@ const getEquipmentById = id => {
 };
 
 module.exports = {
-  getEquipment,
-  postEquipment,
+  getEquipments,
+  addEquipment,
   getEquipmentById
 };
