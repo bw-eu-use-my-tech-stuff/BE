@@ -14,7 +14,7 @@ const getEquipments = () => {
     );
 };
 
-const addEquipment = () => {
+const addEquipment = equipment => {
   return db("equipments")
     .insert(equipment)
     .then(([id]) => getEquipmentById(id));
