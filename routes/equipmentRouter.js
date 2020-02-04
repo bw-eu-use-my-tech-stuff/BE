@@ -24,6 +24,18 @@ router.get("/", (req, res) => {
     });
 });
 
+router.get("/:id", (req, res) => {
+  getEquipmentById(req.params.id)
+    .then(equipment => {
+      res.status(200).json(equipment);
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json({ errorMessage: `Unable to retrieve equipments at this time` });
+    });
+});
+
 router.post("/", restrictToOwners, (req, res) => {
   const { name, category, cost, description } = req.body;
   const newEquipment = {
