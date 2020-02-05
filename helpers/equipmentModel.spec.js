@@ -50,7 +50,7 @@ describe("Equipments Model", () => {
           name: "Canon EOS 5D Mark III Digital SLR",
           category: "Cameras",
           cost: 128.9,
-          user_id: 1,
+          owner_username: "admin",
           available: 1,
           description: "Rent a Canon EOS 5D Mark III Digital SLR"
         });
