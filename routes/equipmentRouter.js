@@ -85,10 +85,10 @@ router.delete(
   restrictToOwners,
   restrictToPoster,
   (req, res, next) => {
-    deleteEquipment(req.body, req.params.id)
+    deleteEquipment(req.params.id)
       .then(data => {
         res
-          .status(204)
+          .status(200)
           .json({ message: `Equipment has been deleted from the database` });
       })
       .catch(error => {
