@@ -7,6 +7,10 @@ beforeEach(async () => {
   await db("equipments").truncate();
 });
 
+afterAll(() => {
+  db.destroy();
+});
+
 describe("Server is up and running", () => {
   it("Returns 200 OK status and  message", async () => {
     const res = await request(server).get("/api");

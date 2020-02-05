@@ -11,6 +11,10 @@ beforeEach(async () => {
   await db("equipments").truncate();
 });
 
+afterAll(() => {
+  db.destroy();
+});
+
 describe("Equipments Model", () => {
   describe("Add Equipment", () => {
     it("Adds an equpment into the db", async () => {
