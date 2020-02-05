@@ -11,6 +11,10 @@ const {
   restrictToOwners,
   restrictToPoster
 } = require("../middleware/restricted");
+const {
+  validateEquipmentId,
+  validateEquipmentBody
+} = require("../middleware/validators");
 
 router.get("/", (req, res) => {
   getEquipments()
@@ -24,7 +28,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateEquipmentId, (req, res) => {
   getEquipmentById(req.params.id)
     .then(equipment => {
       res.status(200).json(equipment);
@@ -36,7 +40,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.post("/", restrictToOwners, (req, res) => {
+router.post("/", validateEquipmentBody, restrictToOwners, (req, res) => {
   const { name, category, cost, description } = req.body;
   const newEquipment = {
     name,
@@ -56,30 +60,43 @@ router.post("/", restrictToOwners, (req, res) => {
     });
 });
 
-router.put("/:id", restrictToOwners, restrictToPoster, (req, res, next) => {
-  updateEquipment(req.body, req.params.id)
-    .then(updatedEquipment => {
-      res.status(200).json(updatedEquipment);
-    })
-    .catch(error => {
-      res.status(400).json({
-        errorMessage: `Unable to make changes to this equipment at this time`
+router.put(
+  "/:id",
+  validateEquipmentId,
+  validateEquipmentBody,
+  restrictToOwners,
+  restrictToPoster,
+  (req, res, next) => {
+    updateEquipment(req.body, req.params.id)
+      .then(updatedEquipment => {
+        res.status(200).json(updatedEquipment);
+      })
+      .catch(error => {
+        res.status(400).json({
+          errorMessage: `Unable to make changes to this equipment at this time`
+        });
       });
-    });
-});
+  }
+);
 
-router.delete("/:id", restrictToOwners, restrictToPoster, (req, res, next) => {
-  deleteEquipment(req.body, req.params.id)
-    .then(data => {
-      res
-        .status(204)
-        .json({ message: `Equipment has been deleted from the database` });
-    })
-    .catch(error => {
-      res
-        .status(400)
-        .json({ errorMessage: `Unable to delete equipment at this time` });
-    });
-});
+router.delete(
+  "/:id",
+  validateEquipmentId,
+  restrictToOwners,
+  restrictToPoster,
+  (req, res, next) => {
+    deleteEquipment(req.body, req.params.id)
+      .then(data => {
+        res
+          .status(204)
+          .json({ message: `Equipment has been deleted from the database` });
+      })
+      .catch(error => {
+        res
+          .status(400)
+          .json({ errorMessage: `Unable to delete equipment at this time` });
+      });
+  }
+);
 
 module.exports = router;

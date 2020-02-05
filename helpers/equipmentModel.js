@@ -16,7 +16,7 @@ const getEquipments = () => {
 
 const addEquipment = equipment => {
   return db("equipments")
-    .insert(equipment)
+    .insert(equipment, "id")
     .then(([id]) => getEquipmentById(id));
 };
 
