@@ -20,10 +20,9 @@ const addEquipment = equipment => {
     .then(([id]) => getEquipmentById(id));
 };
 
-const getEquipmentById = id => {
-  return db("equipments")
-    .where({ id })
-    .first();
+const getEquipmentById = async id => {
+  const equipments = await getEquipments();
+  return equipments.find(equipment => equipment.id == id);
 };
 
 const updateEquipment = (changes, id) => {
