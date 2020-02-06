@@ -1,11 +1,9 @@
 const { getEquipmentById } = require("../helpers/equipmentModel");
 
 function validateEquipmentId(req, res, next) {
-  const { id } = req.params;
-  let validId = Number(id);
-  if (!Number.isInteger(validId) && validId > 0) {
-    res.status(400).json({ message: `The id provided is invalid` });
-  }
+  const { id, equipment_id } = req.params;
+  const validId =
+    equipment_id === undefined ? Number(id) : Number(equipment_id);
   getEquipmentById(validId)
     .then(equipment => {
       if (equipment) {
@@ -34,7 +32,19 @@ function validateEquipmentBody(req, res, next) {
   }
 }
 
+function validateRentBody(req, res, next) {
+  const { start_time, duration } = req.body;
+  if (start_time && duration) {
+    next();
+  } else {
+    res.status(400).json({
+      message: `Please provide start_time and duration`
+    });
+  }
+}
+
 module.exports = {
   validateEquipmentId,
-  validateEquipmentBody
+  validateEquipmentBody,
+  validateRentBody
 };
