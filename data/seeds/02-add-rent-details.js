@@ -6,16 +6,16 @@ exports.seed = function(knex) {
       // Inserts seed entries
       return knex("rent_details").insert([
         {
-          equipment_id: 4,
+          equipment_id: 6,
           start_time: "2020-02-05",
           duration: 1,
-          user_id: 2
+          user_id: 3
         },
         {
-          equipment_id: 5,
+          equipment_id: 7,
           start_time: "2020-02-04",
           duration: 5,
-          user_id: 2
+          user_id: 4
         }
       ]);
     });
