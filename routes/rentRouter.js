@@ -5,12 +5,18 @@ const {
 } = require("../helpers/rentDetailsModel");
 const { restrictToRenters } = require("../middleware/restricted");
 const { avoidDuplicateRent } = require("../middleware/rent");
+const {
+  validateEquipmentId,
+  validateRentBody
+} = require("../middleware/validators");
 const express = require("express");
 
 const router = express.Router();
 
 router.post(
   "/:equipment_id",
+  validateEquipmentId,
+  validateRentBody,
   avoidDuplicateRent,
   restrictToRenters,
   (req, res) => {
