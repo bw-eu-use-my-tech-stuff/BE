@@ -47,14 +47,12 @@ const getOwnerIdByEquipmentId = id => {
     .first();
 };
 
-const isEquipmentAvailable = id => {
-  return db("equipments")
+const isEquipmentAvailable = async id => {
+  const { available } = await db("equipments")
     .select("available")
     .where({ id })
-    .first()
-    .then(available => {
-      return available == 1 ? true : false;
-    });
+    .first();
+  return available == 1 ? true : false;
 };
 
 module.exports = {
