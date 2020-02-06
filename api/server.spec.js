@@ -5,6 +5,7 @@ const db = require("../data/dbconfig");
 beforeEach(async () => {
   await db("users").truncate();
   await db("equipments").truncate();
+  await db("rent_details").truncate();
 });
 
 afterAll(() => {
@@ -340,6 +341,185 @@ describe("EQUIPMENTS Route", () => {
         expect(res.body).toMatchObject({
           message: `You cannot make changes to this equipment`
         });
+      });
+    });
+  });
+});
+
+describe("RENT Route", () => {
+  describe("Rent Endpoint", () => {
+    describe("POST /rent/:equipment_id", () => {
+      it("Returns the newly created rental object", async () => {
+        await request(server)
+          .post("/api/auth/register")
+          .send({ username: "admin", password: "1234", account_type: "owner" });
+        const loggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "admin", password: "1234" });
+        const token = loggedIn.body.token;
+        await request(server)
+          .post("/api/equipments")
+          .set("Authorization", token)
+          .send({
+            name: "Canon EOS 5D Mark III Digital SLR",
+            category: "Cameras",
+            cost: 190.9,
+            description: "Rent a Canon EOS 5D Mark III Digital SLR"
+          });
+        await request(server)
+          .post("/api/auth/register")
+          .send({
+            username: "renter",
+            password: "1234",
+            account_type: "renter"
+          });
+        const rentloggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "renter", password: "1234" });
+        const rentToken = rentloggedIn.body.token;
+        const res = await request(server)
+          .post("/api/rent/1")
+          .set("Authorization", rentToken)
+          .send({
+            start_time: "2020-02-04",
+            duration: "20"
+          });
+        expect(res.body).toHaveProperty("user_id");
+        expect(res.body).toHaveProperty("id");
+        expect(res.body).toHaveProperty("duration");
+        expect(res.body).toHaveProperty("name");
+        expect(res.body).toHaveProperty("description");
+        expect(res.body).toHaveProperty("cost");
+      });
+
+      it("Adds a new rental info to database", async () => {
+        await request(server)
+          .post("/api/auth/register")
+          .send({ username: "admin", password: "1234", account_type: "owner" });
+        const loggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "admin", password: "1234" });
+        const token = loggedIn.body.token;
+        await request(server)
+          .post("/api/equipments")
+          .set("Authorization", token)
+          .send({
+            name: "Canon EOS 5D Mark III Digital SLR",
+            category: "Cameras",
+            cost: 190.9,
+            description: "Rent a Canon EOS 5D Mark III Digital SLR"
+          });
+        await request(server)
+          .post("/api/auth/register")
+          .send({
+            username: "renter",
+            password: "1234",
+            account_type: "renter"
+          });
+        const rentloggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "renter", password: "1234" });
+        const rentToken = rentloggedIn.body.token;
+        await request(server)
+          .post("/api/rent/1")
+          .set("Authorization", rentToken)
+          .send({
+            start_time: "2020-02-04",
+            duration: "20"
+          });
+        const rentals = await db("rent_details");
+        expect(rentals).toHaveLength(1);
+      });
+
+      it("Returns status 400 and error message if equipment is already rented", async () => {
+        await request(server)
+          .post("/api/auth/register")
+          .send({ username: "admin", password: "1234", account_type: "owner" });
+        const loggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "admin", password: "1234" });
+        const token = loggedIn.body.token;
+        await request(server)
+          .post("/api/equipments")
+          .set("Authorization", token)
+          .send({
+            name: "Canon EOS 5D Mark III Digital SLR",
+            category: "Cameras",
+            cost: 190.9,
+            description: "Rent a Canon EOS 5D Mark III Digital SLR"
+          });
+        await request(server)
+          .post("/api/auth/register")
+          .send({
+            username: "renter",
+            password: "1234",
+            account_type: "renter"
+          });
+        const rentloggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "renter", password: "1234" });
+        const rentToken = rentloggedIn.body.token;
+        await request(server)
+          .post("/api/rent/1")
+          .set("Authorization", rentToken)
+          .send({
+            start_time: "2020-02-04",
+            duration: "20"
+          });
+        const res = await request(server)
+          .post("/api/rent/1")
+          .set("Authorization", rentToken)
+          .send({
+            start_time: "2020-02-04",
+            duration: "20"
+          });
+        expect(res.status).toEqual(400);
+        expect(res.body).toMatchObject({
+          message: "This equipment has been rented already"
+        });
+      });
+    });
+
+    describe("GET /rent/", () => {
+      it("Returns an array of all your rents", async () => {
+        await request(server)
+          .post("/api/auth/register")
+          .send({ username: "admin", password: "1234", account_type: "owner" });
+        const loggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "admin", password: "1234" });
+        const token = loggedIn.body.token;
+        await request(server)
+          .post("/api/equipments")
+          .set("Authorization", token)
+          .send({
+            name: "Canon EOS 5D Mark III Digital SLR",
+            category: "Cameras",
+            cost: 190.9,
+            description: "Rent a Canon EOS 5D Mark III Digital SLR"
+          });
+        await request(server)
+          .post("/api/auth/register")
+          .send({
+            username: "renter",
+            password: "1234",
+            account_type: "renter"
+          });
+        const rentloggedIn = await request(server)
+          .post("/api/auth/login")
+          .send({ username: "renter", password: "1234" });
+        const rentToken = rentloggedIn.body.token;
+        await request(server)
+          .post("/api/rent/1")
+          .set("Authorization", rentToken)
+          .send({
+            start_time: "2020-02-04",
+            duration: "20"
+          });
+        const res = await request(server)
+          .get("/api/rent/")
+          .set("Authorization", rentToken);
+        expect(res.body).toHaveLength(1);
       });
     });
   });
