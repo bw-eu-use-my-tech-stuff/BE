@@ -2,7 +2,7 @@ const db = require("../data/dbconfig");
 
 const addUser = user => {
   return db("users")
-    .insert(user)
+    .insert(user, "id")
     .then(([id]) => getUserById(id));
 };
 

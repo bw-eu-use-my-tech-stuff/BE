@@ -1,35 +1,40 @@
-function validateUserId(req, res, next) {
+const { getEquipmentById } = require("../helpers/equipmentModel");
+
+function validateEquipmentId(req, res, next) {
   const { id } = req.params;
   let validId = Number(id);
   if (!Number.isInteger(validId) && validId > 0) {
-    next({ message: "Invalid user id" });
+    res.status(400).json({ message: `The id provided is invalid` });
   }
-  Users.getUser({ id: validId })
-    .then(user => {
-      if (user) {
-        req.user = user;
+  getEquipmentById(validId)
+    .then(equipment => {
+      if (equipment) {
         next();
       } else {
-        next({ message: "Could not find user with given id", status: 404 });
+        res
+          .status(400)
+          .json({ message: `Equipment with ID:${validId} does not exist` });
       }
     })
-    .catch(next);
+    .catch(error => {
+      res
+        .status(500)
+        .json({ errorMessage: `Internal server error. Please try again` });
+    });
 }
 
-function validateUserBody(req, res, next) {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    next({
-      message: "Missing required `username` and `password` fields",
-      status: 401
-    });
-  } else {
-    req.body = { username, password };
+function validateEquipmentBody(req, res, next) {
+  const { name, category, cost, description } = req.body;
+  if (name && category && cost && description) {
     next();
+  } else {
+    res.status(400).json({
+      message: `Please provide name, category, cost and description to your request`
+    });
   }
 }
 
 module.exports = {
-  validateUserBody,
-  validateUserId
+  validateEquipmentId,
+  validateEquipmentBody
 };

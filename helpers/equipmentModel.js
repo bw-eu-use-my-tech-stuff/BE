@@ -14,14 +14,35 @@ const getEquipments = () => {
     );
 };
 
-const addEquipment = () => {
+const addEquipment = equipment => {
   return db("equipments")
-    .insert(equipment)
+    .insert(equipment, "id")
     .then(([id]) => getEquipmentById(id));
 };
 
-const getEquipmentById = id => {
+const getEquipmentById = async id => {
+  const equipments = await getEquipments();
+  return equipments.find(equipment => equipment.id == id);
+};
+
+const updateEquipment = (changes, id) => {
   return db("equipments")
+    .where({ id })
+    .update(changes)
+    .then(count => {
+      return count > 0 ? getEquipmentById(id) : null;
+    });
+};
+
+const deleteEquipment = id => {
+  return db("equipments")
+    .where({ id })
+    .del();
+};
+
+const getOwnerIdByEquipmentId = id => {
+  return db("equipments")
+    .select("user_id")
     .where({ id })
     .first();
 };
@@ -29,5 +50,8 @@ const getEquipmentById = id => {
 module.exports = {
   getEquipments,
   addEquipment,
-  getEquipmentById
+  getEquipmentById,
+  getOwnerIdByEquipmentId,
+  updateEquipment,
+  deleteEquipment
 };
