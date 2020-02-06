@@ -4,25 +4,31 @@ const {
   getRentDetailsById
 } = require("../helpers/rentDetailsModel");
 const { restrictToRenters } = require("../middleware/restricted");
+const { avoidDuplicateRent } = require("../middleware/rent");
 const express = require("express");
 
 const router = express.Router();
 
-router.post("/:equipment_id", restrictToRenters, (req, res) => {
-  const newRent = {
-    ...req.body,
-    user_id: req.decoded.subject
-  };
-  addRent(newRent, req.params.equipment_id)
-    .then(createdRent => {
-      res.status(201).json(createdRent);
-    })
-    .catch(error => {
-      res
-        .status(400)
-        .json({ errorMessage: `Unable to add a rent ${error.message}` });
-    });
-});
+router.post(
+  "/:equipment_id",
+  avoidDuplicateRent,
+  restrictToRenters,
+  (req, res) => {
+    const newRent = {
+      ...req.body,
+      user_id: req.decoded.subject
+    };
+    addRent(newRent, req.params.equipment_id)
+      .then(createdRent => {
+        res.status(201).json(createdRent);
+      })
+      .catch(error => {
+        res
+          .status(400)
+          .json({ errorMessage: `Unable to add a rent ${error.message}` });
+      });
+  }
+);
 
 router.get("/", restrictToRenters, (req, res) => {
   getRentDetails()
